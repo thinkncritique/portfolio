@@ -1,0 +1,264 @@
+---
+import Base from '../layouts/Base.astro';
+import {
+  profile, projects, experience, education, engagement,
+  skills, skillsDe, languages, ui, projectUrl, type Lang,
+} from '../data/content';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const other = lang === 'en' ? '/de/' : '/';
+const skillName = (s: string) => (lang === 'de' && skillsDe[s]) || s;
+---
+
+<Base
+  lang={lang}
+  home
+  title={`${profile.name} — ${profile.role[lang]}`}
+  description={profile.tagline[lang]}
+  alternateUrl={other}
+>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="photo-wrap">
+        <img src={profile.photo} alt={profile.name} width="320" height="320" />
+      </div>
+      <div class="hero-card">
+        <h1>{profile.name.split(' ')[0]}<br />{profile.name.split(' ').slice(1).join(' ')}</h1>
+        <p class="role">{profile.role[lang]}</p>
+        <p class="tagline">{profile.tagline[lang]}</p>
+        <div class="actions">
+          <a class="btn" href="#projects">{t.seeProjects}</a>
+          {profile.cvPdf && <a class="btn ghost" href={profile.cvPdf}>{t.downloadCv}</a>}
+          <a class="btn ghost" href={profile.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+          {profile.github && <a class="btn ghost" href={profile.github} target="_blank" rel="noopener">GitHub</a>}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="wrap narrow">
+      <h2 class="kicker">{t.nav.about}</h2>
+      {profile.about[lang].map((p) => <p class="lead">{p}</p>)}
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="tinted">
+    <div class="wrap">
+      <h2 class="kicker">{t.nav.projects}</h2>
+      <div class="cards">
+        {projects.map((p) => (
+          <a class="card" href={projectUrl(p.slug, lang)}>
+            {p.images[0]
+              ? <img class="card-img" src={p.images[0]} alt={p.title} loading="lazy" />
+              : <div class="card-img placeholder"><span>{t.screenshotSoon}</span></div>}
+            <div class="card-body">
+              <h3>{p.title}</h3>
+              <p>{p.summary[lang]}</p>
+              {p.tech.length > 0 && <div class="chips">{p.tech.map((x) => <span class="chip">{x}</span>)}</div>}
+              <span class="more">{t.readMore} →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="wrap">
+      <h2 class="kicker">{t.nav.experience}</h2>
+      <ol class="timeline">
+        {experience.map((e) => (
+          <li>
+            <div class="when">{e.period[lang]}</div>
+            <div class="what">
+              <h3>{e.title[lang]}</h3>
+              <p class="org">{e.org[lang]}</p>
+              <ul>{e.points[lang].map((pt) => <li>{pt}</li>)}</ul>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- EDUCATION -->
+  <section id="education" class="tinted">
+    <div class="wrap">
+      <h2 class="kicker">{t.nav.education}</h2>
+      <ol class="timeline">
+        {education.map((e) => (
+          <li>
+            <div class="when">{e.period[lang]}</div>
+            <div class="what">
+              <h3>{e.degree[lang]}</h3>
+              <p class="org">{e.school[lang]}</p>
+              {e.note && <p class="note">{e.note[lang]}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ENGAGEMENT -->
+  <section id="engagement">
+    <div class="wrap">
+      <h2 class="kicker">{t.nav.engagement}</h2>
+      <div class="tiles">
+        {engagement.map((g) => (
+          <article class="tile">
+            <h3>{g.title[lang]}</h3>
+            <p class="org">{g.subtitle[lang]}</p>
+            <p>{g.text[lang]}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS & LANGUAGES -->
+  <section id="skills" class="tinted">
+    <div class="wrap two-col">
+      <div>
+        <h2 class="kicker">{t.nav.skills}</h2>
+        {skills.map((g) => (
+          <div class="skill-group">
+            <h3>{g.group[lang]}</h3>
+            <div class="chips">{g.items.map((x) => <span class="chip">{skillName(x)}</span>)}</div>
+          </div>
+        ))}
+      </div>
+      <div>
+        <h2 class="kicker">{t.languages}</h2>
+        <ul class="langs">
+          {languages.map((l) => (
+            <li>
+              <span class="lname">{l.name[lang]}</span>
+              <span class="bar" aria-hidden="true">
+                {[1, 2, 3, 4, 5, 6].map((i) => <i class={i <= l.value ? 'on' : ''}></i>)}
+              </span>
+              <span class="lvl">{l.level}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="wrap narrow center">
+      <h2 class="kicker">{t.nav.contact}</h2>
+      <p class="lead">{t.contactText}</p>
+      <div class="actions centered">
+        <a class="btn" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a class="btn ghost" href={profile.linkedin} target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+      <p class="muted">{profile.location[lang]}</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow { max-width: 760px; }
+  .center { text-align: center; }
+  .center .kicker { text-align: left; }
+  .tinted { background: var(--sand-faint); }
+  .lead { font-size: 1.08rem; color: var(--ink); margin: 0 0 1em; }
+  .muted { color: var(--ink-soft); font-size: .9rem; margin-top: 18px; }
+  h3 { margin: 0; font-size: 1.08rem; line-height: 1.35; }
+  .org { margin: 2px 0 8px; color: var(--ink-soft); font-size: .93rem; font-weight: 600; }
+
+  /* hero — echoes the CV: sand block, round photo, big spaced name */
+  .hero { padding: 56px 0 40px; }
+  .hero-grid { display: grid; grid-template-columns: 300px 1fr; align-items: center; position: relative; }
+  .photo-wrap { position: relative; z-index: 2; }
+  .photo-wrap img {
+    width: 300px; height: 300px; object-fit: cover; border-radius: 50%;
+    border: 6px solid #fff; box-shadow: 0 10px 30px rgba(60, 40, 10, .18);
+  }
+  .hero-card {
+    background: var(--sand); border-radius: var(--radius);
+    margin-left: -90px; padding: 44px 44px 44px 130px;
+  }
+  .hero h1 {
+    margin: 0; font-family: var(--sans); font-weight: 400;
+    font-size: clamp(2.6rem, 6vw, 4.4rem); line-height: .98; letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .role { margin: 14px 0 6px; font-size: 1.15rem; letter-spacing: .03em; }
+  .tagline { margin: 0 0 22px; max-width: 520px; color: #3d3833; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .actions.centered { justify-content: center; }
+  @media (max-width: 820px) {
+    .hero-grid { grid-template-columns: 1fr; justify-items: center; }
+    .photo-wrap img { width: 200px; height: 200px; }
+    .hero-card { margin: -70px 0 0; padding: 90px 24px 30px; text-align: center; width: 100%; }
+    .tagline { margin-inline: auto; }
+    .actions { justify-content: center; }
+  }
+
+  /* project cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; text-decoration: none; display: flex; flex-direction: column;
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(60, 40, 10, .12); }
+  .card-img { aspect-ratio: 16 / 9; width: 100%; object-fit: cover; }
+  .placeholder {
+    display: grid; place-items: center; background: var(--sand-soft);
+    border-bottom: 1px dashed var(--sand); color: var(--accent); font-size: .85rem; letter-spacing: .05em;
+  }
+  .card-body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .card-body h3 { font-family: var(--serif); font-size: 1.35rem; }
+  .card-body p { margin: 0; color: var(--ink-soft); }
+  .more { margin-top: auto; padding-top: 6px; font-weight: 600; font-size: .92rem; color: var(--accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* timeline */
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline > li {
+    display: grid; grid-template-columns: 170px 1fr; gap: 24px;
+    padding: 0 0 30px; position: relative;
+  }
+  .when { font-size: .88rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; padding-top: 2px; }
+  .what { border-left: 2px solid var(--line); padding-left: 24px; position: relative; }
+  .what::before {
+    content: ''; position: absolute; left: -7px; top: 6px; width: 12px; height: 12px;
+    border-radius: 50%; background: var(--sand); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--sand);
+  }
+  .what ul { margin: 0; padding-left: 18px; color: #3d3833; }
+  .what li { margin-bottom: 3px; }
+  .note { margin: 0; color: #3d3833; }
+  @media (max-width: 640px) {
+    .timeline > li { grid-template-columns: 1fr; gap: 4px; }
+    .when { padding-left: 26px; }
+  }
+
+  /* engagement */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
+  .tile { border: 1px solid var(--line); border-top: 4px solid var(--sand); border-radius: var(--radius); padding: 22px; }
+  .tile p:last-child { margin: 0; color: #3d3833; }
+
+  /* skills & languages */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
+  @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; gap: 24px; } }
+  .skill-group { margin-bottom: 20px; }
+  .skill-group h3 { font-size: .95rem; margin-bottom: 8px; }
+  .langs { list-style: none; margin: 0; padding: 0; }
+  .langs li { display: grid; grid-template-columns: 110px 1fr 34px; align-items: center; gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .lname { font-weight: 600; }
+  .bar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .bar i { height: 8px; border-radius: 4px; background: var(--line); }
+  .bar i.on { background: var(--accent); }
+  .lvl { font-weight: 700; font-size: .85rem; text-align: right; }
+</style>

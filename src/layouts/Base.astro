@@ -1,0 +1,141 @@
+---
+import { profile, ui, type Lang } from '../data/content';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  alternateUrl: string; // same page in the other language
+  home?: boolean;
+}
+const { lang, title, description, alternateUrl, home = false } = Astro.props;
+const t = ui[lang];
+const homeUrl = lang === 'en' ? '/' : '/de/';
+const s = (id: string) => (home ? `#${id}` : `${homeUrl}#${id}`);
+const otherLang = lang === 'en' ? 'de' : 'en';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="alternate" hreflang={otherLang} href={alternateUrl} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={profile.photo} />
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="wrap nav">
+        <a class="brand" href={homeUrl}>{profile.name}</a>
+        <ul class="links">
+          <li><a href={s('projects')}>{t.nav.projects}</a></li>
+          <li><a href={s('experience')}>{t.nav.experience}</a></li>
+          <li><a href={s('education')}>{t.nav.education}</a></li>
+          <li><a href={s('engagement')}>{t.nav.engagement}</a></li>
+          <li><a href={s('contact')}>{t.nav.contact}</a></li>
+        </ul>
+        <a class="lang" href={alternateUrl} hreflang={otherLang} lang={otherLang}>
+          {otherLang.toUpperCase()}<span class="sr">{t.switchLabel}</span>
+        </a>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">
+        <span>© {new Date().getFullYear()} {profile.name}</span>
+        <span>{t.footer}</span>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --sand: #d3bc9a;
+    --sand-soft: #efe5d6;
+    --sand-faint: #f8f3ec;
+    --ink: #2a2826;
+    --ink-soft: #5b5650;
+    --line: #ddd2c2;
+    --paper: #ffffff;
+    --accent: #8a6a3f;
+    --radius: 14px;
+    --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 17px/1.65 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+  .wrap { width: min(1080px, 100% - 40px); margin-inline: auto; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* section headings in the CV's spaced-caps style */
+  .kicker {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin: 0 0 28px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  section { padding: 72px 0; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px; border-radius: 999px;
+    background: var(--ink); color: #fff; text-decoration: none;
+    font-weight: 600; font-size: 0.95rem;
+    border: 1.5px solid var(--ink);
+    transition: transform .15s ease, background .15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn.ghost:hover { background: var(--ink); color: #fff; }
+  .chip {
+    display: inline-block; padding: 3px 11px; border-radius: 999px;
+    background: var(--sand-soft); font-size: 0.85rem; color: var(--ink);
+  }
+
+  /* top bar */
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255,255,255,.88);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav { display: flex; align-items: center; gap: 24px; height: 60px; }
+  .brand { font-family: var(--serif); font-size: 1.15rem; font-weight: 600; text-decoration: none; letter-spacing: .02em; }
+  .links { display: flex; gap: 22px; list-style: none; margin: 0 0 0 auto; padding: 0; }
+  .links a { text-decoration: none; font-size: 0.92rem; color: var(--ink-soft); }
+  .links a:hover { color: var(--ink); }
+  .lang {
+    text-decoration: none; font-weight: 700; font-size: 0.8rem; letter-spacing: .1em;
+    border: 1.5px solid var(--ink); border-radius: 999px; padding: 4px 11px;
+  }
+  .lang:hover { background: var(--ink); color: #fff; }
+  @media (max-width: 760px) {
+    .links { display: none; }
+    .lang { margin-left: auto; }
+  }
+
+  .footer { border-top: 1px solid var(--line); padding: 28px 0; font-size: 0.85rem; color: var(--ink-soft); }
+  .footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+</style>
